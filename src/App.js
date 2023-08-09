@@ -6,21 +6,28 @@ import Form from "./Form";
 import Base64 from "./Base64";
 
 function App() {
-  const controller = new AbortController();
+  const [controller, setController] = useState(new AbortController()); // Initialize with an AbortController
   const [users, setData] = useState([]);
 
   const getApiData = async () => {
-    // const response = await fetch("https://jsonplaceholder.typicode.com/users");
-    // const data = await response.json();
-    // setData(data);
+    controller.abort(); // Abort the previous request
+    const newController = new AbortController(); // Create a new controller
+    setController(newController); // Update the controller state
 
-    axios
-      .get("https://jsonplaceholder.typicode.com/users", {
-        signal: controller.signal,
-      })
-      .then((response) => setData(response.data));
-    // controller.abort();
+    try {
+      const response = await axios.get("https://jsonplaceholder.typicode.com/users", {
+        signal: newController.signal,
+      });
+      setData(response.data);
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        console.log('Previous request was aborted');
+      } else {
+        console.error('Error fetching data:', error);
+      }
+    }
   };
+
   return (
     <div className="container">
       <h3 className="text-center p-5">Get Table data from Api</h3>
@@ -47,6 +54,9 @@ function App() {
       <button type="submit" className="btn btn-primary" onClick={getApiData}>
         fetch data
       </button>
+ 
+
+
 
       <Form />
       <Base64 />
