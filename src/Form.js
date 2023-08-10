@@ -3,20 +3,29 @@ import "./App.css";
 import axios from "axios";
 const Form = () => {
   const [inputValue, setInputvalue] = useState({
-    name: "xyz",
-    email: "@gmail.com",
-    username: "x",
+    name: "",
+    email: "",
+    username: "",
   });
-  const [error, setError] = useState();
+  const [emailError, setEmailError] = useState();
+  const [usernameError, setUsernameError] = useState();
   const handleOnchange = (e) => {
     setInputvalue({ ...inputValue, [e.target.name]: e.target.value });
 
-    if (!inputValue.email) {
-      setError("Email is required");
+    if (!inputValue.email || inputValue.email.trimStart() === "") {
+      setEmailError("Email is required");
     } else if (!new RegExp(/\S+@\S+\.\S+/).test(inputValue.email)) {
-      setError("Incorrect email format");
+      setEmailError("Incorrect email format");
+    } else if (inputValue.email.length === 0) {
+      setEmailError("Please enter a valid email");
     } else {
-      setError("Email is valid");
+      setEmailError("Email is valid");
+    }
+
+    if (inputValue.username.length < 4) {
+      setUsernameError("Username must be at least 4 characters");
+    } else {
+      setUsernameError("Valid username");
     }
   };
 
@@ -59,14 +68,10 @@ const Form = () => {
     //   headers: { Authorization: "token" },
     // });
   };
-  // const [validations, setValidations] = useState({
-  //   name: "",
-  //   email: "",
-  //   username: "",
-  // });
+
   return (
     <div className="container">
-      <h3 className="text-center p-5">Submit Table data to server</h3>
+      <h3 className="text-center p-5">Submit Form data to server</h3>
       <form autoComplete="off">
         <div className="form-group">
           <label htmlFor="email">Name:</label>
@@ -100,7 +105,7 @@ const Form = () => {
           <div className="mt-3">
             {inputValue.email && (
               <span className=" w-25 bg-danger text-center p-2 mt-2 mb-2">
-                {error}
+                {emailError}
               </span>
             )}
           </div>
@@ -116,6 +121,9 @@ const Form = () => {
             value={inputValue.username}
             onChange={handleOnchange}
           />
+          <span className=" w-25 bg-danger text-center p-2 mt-2 mb-2">
+            {usernameError}
+          </span>
         </div>
 
         <div className="text-center mt-4">
